@@ -4,7 +4,8 @@
   "description": "API for managing projects",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "env-cmd -f ./config/config.env nodemon app -e js"
   },
   "repository": {
     "type": "git",
@@ -15,5 +16,27 @@
   "bugs": {
     "url": "https://github.com/Tourahi/Projects-Management/issues"
   },
-  "homepage": "https://github.com/Tourahi/Projects-Management#readme"
+  "homepage": "https://github.com/Tourahi/Projects-Management#readme",
+  "dependencies": {
+    "@supercharge/strings": "^1.24.0",
+    "bcryptjs": "^2.4.3",
+    "body-parser": "^1.19.0",
+    "connect-flash": "^0.1.1",
+    "connect-mongo": "^3.2.0",
+    "express": "^4.17.1",
+    "express-fileupload": "^1.2.1",
+    "express-handlebars": "^6.0.2",
+    "express-session": "^1.17.2",
+    "fs-extra": "^10.0.0",
+    "method-override": "^3.0.0",
+    "moment": "^2.29.1",
+    "mongoose": "^6.0.14",
+    "morgan": "^1.10.0",
+    "multer": "^1.4.3",
+    "sharp": "^0.29.3"
+  },
+  "devDependencies": {
+    "env-cmd": "^10.1.0",
+    "nodemon": "^2.0.15"
+  }
 }
