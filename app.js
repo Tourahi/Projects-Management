@@ -16,7 +16,7 @@ const connectDB = require('./config/db');
 
 // app
 const app = express();
-const PORT = process.env.PORT || 8000
+const PORT = process.env.PORT || 8000;
 
 // parser
 app.use(bodyParser.urlencoded({extended : true}));
@@ -29,8 +29,11 @@ require('./init')(app,session,MongoStore,mongoose,
     flash,express,morgan);
 
 // connect to mongoDB Database
-connectDB()
+connectDB();
 
+
+// Routes
+app.use('/projects',require('./routes/projects'));
 
 
 // booting the server
