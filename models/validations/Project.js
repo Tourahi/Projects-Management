@@ -11,5 +11,4 @@ const ProjectValidationSchema = Joi.object({
     files: Joi.array()
 });
 
-
 module.exports = ProjectValidationSchema

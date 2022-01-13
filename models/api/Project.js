@@ -1,7 +1,8 @@
 const Project = require('../Project');
 const ProjectValidationSchema = require('../validations/Project');
 const _ = require('lodash');
-const moment = require('moment')
+const moment = require('moment');
+const { keys } = require('../validations/Project');
 
 Projectdb = {}
 
@@ -78,5 +79,49 @@ Projectdb.deleteOne = async function(req) {
     return {"err": e};
   }
 }
+
+Projectdb.findOne = async function(req) {
+  try{
+    project = await Project.findById({_id : req.params.id}).lean();
+    if(!project) return {"err": "Project does not exist."};
+    return project;
+  }catch (e){
+    return {"err": e};
+  }
+}
+
+Projectdb.findAll = async function(req) {
+  try{
+    project = await Project.find({}).lean();
+    console.log(Object.keys(req.query)[0])
+    if(!project) project = {};
+    return project;
+  }catch (e){
+    return {"err": e};
+  }
+}
+
+Projectdb.findByProperty = async function(req) {
+  try{
+    let keys = [];
+    Project.schema.eachPath(function(path) {
+      keys.push(path);
+    });
+    property  = Object.keys(req.query)[0]
+    if(keys.indexOf(property) == -1) return {"err": "Property does not exist."};
+    project = await Project.find({[property]: req.query[property]}).lean();
+    if(!project) return {"err": "Project does not exist."};
+    return project;
+  }catch (e){
+    return {"err": e};
+  }
+}
+
+Projectdb.count = async function(req) {
+
+}
+
+
+
 
 module.exports = Projectdb
