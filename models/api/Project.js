@@ -3,6 +3,7 @@ const ProjectValidationSchema = require('../validations/Project');
 const _ = require('lodash');
 const moment = require('moment');
 const { keys } = require('../validations/Project');
+const root = require('path').resolve('./');
 
 Projectdb = {}
 
@@ -22,6 +23,14 @@ getFiles = (files) => {
       });
   });
   return data;
+}
+
+getSchemaKeys = (s) => {
+  let keys = [];
+  s.schema.eachPath(function(path) {
+    keys.push(path);
+  });
+  return keys;
 }
 
 Projectdb.addOne = async function(req) {
@@ -49,7 +58,10 @@ Projectdb.updateOne = async function(req) {
     let data = getFiles(req.files);
     project = await Project.findById({_id : req.params.id}).lean();
     if(!project) return {"err": "Project does not exist."};
-    req.body.files = [...data, ...project.files];
+    if(project.files)
+      req.body.files = [...data, ...project.files];
+    else
+      req.body.files = data;
 
     const {error} = ProjectValidationSchema.validate(req.body);
     if(error) return {"err": error};
@@ -103,10 +115,7 @@ Projectdb.findAll = async function(req) {
 
 Projectdb.findByProperty = async function(req) {
   try{
-    let keys = [];
-    Project.schema.eachPath(function(path) {
-      keys.push(path);
-    });
+    let keys = getSchemaKeys(Project);
     property  = Object.keys(req.query)[0]
     if(keys.indexOf(property) == -1) return {"err": "Property does not exist."};
     project = await Project.find({[property]: req.query[property]}).lean();
@@ -117,11 +126,60 @@ Projectdb.findByProperty = async function(req) {
   }
 }
 
-Projectdb.count = async function(req) {
-
+Projectdb.count = async function(res) {
+  try{
+    Project.countDocuments({}).exec((err, count) => {
+      if (err) {
+          res.send(err);
+          return;
+      } 
+      res.status(200).json({"count": count});
+    });
+  }catch (e){
+    return {"err": e};
+  }
 }
 
+Projectdb.dropProjectFiles = async function(req) {
+  try{
+    project = await Project.findOneAndUpdate({_id : req.params.id},
+      {$unset: {files:1}}).lean();
+    return project;
+  }catch(e) {
+    return {"err": e};
+  }
+}
 
+Projectdb.getProjectFiles = async function(req) {
+  try{
+    project = await Project.findById({_id : req.params.id})
+    .select({ "files": 1, "_id": 0}).lean();
+    if(!project) return {"err": "Project does not have files."};
+    return project;
+  }catch (e){
+    console.log(e)
+    return {"err": e};
+  }
+}
+
+Projectdb.downloadFile = async function(req, res) {
+  try{
+    file  = req.params.name
+    project = await Project.findById({_id : req.params.id});
+    if(project.files){
+      let i = 0;
+      while (i < project.files.length) {
+        if(project.files[i].name == file){
+          return res.download(root + '/uploads/' + project.files[i].name);
+        }
+        i++;
+      }
+      return res.status(400).json({"err": "File does not exist in project"});
+    }
+  }catch (e){
+    return {"err": e};
+  }
+}
 
 
 module.exports = Projectdb
