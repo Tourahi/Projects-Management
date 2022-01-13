@@ -17,7 +17,7 @@ const path = require('path');
  * @param {object} methodOverride methodOverride
  * @param {object} fileUpload fileUpload
  */
- module.exports = (app,session,mongoStore,mongoose,flash,express,morgan,fileUpload) =>
+ module.exports = (app,session,mongoStore,mongoose,flash,bodyParser,morgan,fileUpload,cors) =>
 {
   // Sessions
   app.use(
@@ -29,20 +29,18 @@ const path = require('path');
     })
   );
 
+  app.use(fileUpload({
+    createParentPath: true
+  }));
+
   //encoding && json
-  app.use(express.urlencoded({ extended: true }));
-  app.use(express.json());
+  app.use(cors());
+  app.use(bodyParser.json());
+  app.use(bodyParser.urlencoded({extended : true, type: 'application/*+json'}));
 
   app.use(morgan('tiny'));
 
   //Connect flash
   app.use(flash());
 
-  //Static folders
-  //app.use(express.static(path.join(__dirname , 'public')));
-
-  //fileUpload
-//   app.use(fileUpload({
-//     createParentPath: true
-//   }));
 }

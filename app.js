@@ -1,12 +1,14 @@
 "use strict";
 
 const bodyParser        = require('body-parser');
-const express   = require('express');
-const session   = require('express-session');
+const express           = require('express');
+const session           = require('express-session');
 const mongoose          = require('mongoose');
 const methodOverride    = require('method-override');
 const flash             = require('connect-flash');
 const MongoStore        = require('connect-mongo')(session);
+const fileUpload        = require('express-fileupload');
+const cors              = require('cors');
 
 // Dev
 const morgan = require('morgan');
@@ -18,22 +20,19 @@ const connectDB = require('./config/db');
 const app = express();
 const PORT = process.env.PORT || 8000;
 
-// parser
-app.use(bodyParser.urlencoded({extended : true}));
-app.use(bodyParser.json());
-
 
 
 //Initialize app
 require('./init')(app,session,MongoStore,mongoose,
-    flash,express,morgan);
+    flash,bodyParser,morgan,fileUpload,cors);
 
 // connect to mongoDB Database
 connectDB();
 
+app.use(express.static('uploads'));
 
 // Routes
-app.use('/projects',require('./routes/projects'));
+app.use('/project',require('./routes/projects'));
 
 
 // booting the server
